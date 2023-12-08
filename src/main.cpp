@@ -25,7 +25,7 @@ void setup()
 
   for (int i = 0; i < 8; ++i) {
         // Use the constructor to create FloatPayload
-        FloatPayload* packet = new FloatPayload{static_cast<uint8_t>(i), i * 1000, 3.14f + i};
+        FloatPayload* packet = new FloatPayload{static_cast<uint8_t>(i), static_cast<uint32_t>(i * 1000), 3.14f + i};
         buffer.addPacket(packet, 9);
   }
 
@@ -44,21 +44,21 @@ void loop()
   if (micros() >= nextUpdate)
   {
     // Serial.println(sizeof(SensorPackage));
-    // timeToComplete = micros();
+    timeToComplete = micros();
 
-    for (size_t i = 0; i < 5; i++)
-    {
-      uint8_t size = myTransfer.sendDatum(buffer);
-    }
+    // for (size_t i = 0; i < 5; i++)
+    // {
+    uint8_t size = myTransfer.sendDatum(buffer);
+    // }
     
 
-    // timeToComplete = micros() - timeToComplete;
-    // Serial.print("\nTotal:");
-    // Serial.print(timeToComplete);
+    timeToComplete = micros() - timeToComplete;
+    Serial.print("\nTotal:");
+    Serial.print(timeToComplete);
     // Serial.print(" : size: ");
     // Serial.print(sizeof(SensorPackage));
-    // Serial.print(" : sended size: ");
-    // Serial.println(size);
+    Serial.print(" : sended size: ");
+    Serial.println(size);
     nextUpdate = micros() + 1000000 ;
   }
   // delay(100);

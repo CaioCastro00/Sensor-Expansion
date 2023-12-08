@@ -53,7 +53,7 @@ public:
     // Remove and get the oldest packet from the buffer
     Package* getOldestPacket() {
         if(Is_BufferEmpty()){
-
+            return 0;
         }
         else{
             // if (size_ > 0) {
@@ -104,7 +104,7 @@ private:
     std::vector<Package*> buffer_;
 };
 
-
+/*
 void testBuffer() {
     // Create a packet buffer with a capacity of 5 packets
     PacketBuffer buffer(5);
@@ -133,3 +133,4 @@ void testBuffer() {
     // Clear the buffer
     buffer.clear();
 }
+*/
