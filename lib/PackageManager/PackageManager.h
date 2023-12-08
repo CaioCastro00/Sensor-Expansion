@@ -105,7 +105,7 @@ private:
 };
 
 
-int main() {
+void testBuffer() {
     // Create a packet buffer with a capacity of 5 packets
     PacketBuffer buffer(5);
 
@@ -132,6 +132,4 @@ int main() {
 
     // Clear the buffer
     buffer.clear();
-
-    return 0;
 }

@@ -2,6 +2,7 @@
 #include "Types.h"
 #include "Wire.h"
 #include "SerialTransfer.h"
+#include "PackageManager.h"
 
 SerialTransfer myTransfer;
 uint32_t nextUpdate, timeToComplete;
@@ -12,12 +13,20 @@ MAX31855Packet buffer[28];
 
 void setup()
 {
-  for (uint8_t i = 0; i < 28; i++)
-  {
-    // FloatPayload p;
-    FloatPayload p  = {i, millis(), 1000.0F + i };
-    // {i, millis(), 1000.0F + i }
-    buffer[i] = p;
+  // for (uint8_t i = 0; i < 28; i++)
+  // {
+  //   // FloatPayload p;
+  //   // FloatPayload p  = {i, millis(), 1000.0F + i };
+  //   // {i, millis(), 1000.0F + i }
+  //   // buffer[i] = p;
+  // }
+
+  PacketBuffer buffer(5);
+
+  for (int i = 0; i < 8; ++i) {
+        // Use the constructor to create FloatPayload
+        FloatPayload* packet = new FloatPayload{static_cast<uint8_t>(i), i * 1000, 3.14f + i};
+        buffer.addPacket(packet, 9);
   }
 
   Serial.begin(115200);
@@ -37,7 +46,7 @@ void loop()
     // Serial.println(sizeof(SensorPackage));
     // timeToComplete = micros();
 
-    for (size_t i = 0; i < 38; i++)
+    for (size_t i = 0; i < 5; i++)
     {
       uint8_t size = myTransfer.sendDatum(buffer);
     }
