@@ -3,6 +3,7 @@
 #include "Wire.h"
 #include "SerialTransfer.h"
 #include "PackageManager.h"
+#include "test.h"
 
 SerialTransfer myTransfer;
 uint32_t nextUpdate, timeToComplete;
