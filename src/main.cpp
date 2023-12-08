@@ -9,7 +9,8 @@ uint32_t nextUpdate, timeToComplete;
 
 // typedef Package MAX31855Packet;
 
-MAX31855Packet buffer[28];
+// MAX31855Packet buffer[28];
+PacketBuffer buffer(5);
 
 void setup()
 {
@@ -21,7 +22,6 @@ void setup()
   //   // buffer[i] = p;
   // }
 
-  PacketBuffer buffer(5);
 
   for (int i = 0; i < 8; ++i) {
         // Use the constructor to create FloatPayload
