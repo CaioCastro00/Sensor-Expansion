@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <vector>
-#include "Types.h"
+#include "Arduino.h"
 
 /*
 
@@ -46,13 +46,12 @@
 
 enum MockSensorID : uint8_t
 {
-    INIT_0,
     ADS1256_PT,
 };
 
 struct MockPackage
 {
-    uint8_t  datagram_ID;  // 1 Byte - unsigned char   // Define type of next payload data // 
+    uint8_t  datagram_ID;  // 1 Byte - unsigned char   // Define type of next payload data 
     uint32_t timestamp;    // 4 Byte - unsigned long
     float_t  value;        // 4 Byte
 } __attribute__((packed)); // attribute packed: Set smallest possible alignment, remove every padding.
@@ -104,7 +103,7 @@ public:
 
         while (true) {
             if (data[nextRead_] != T{}){
-                output.push_back(data[nextRead_]);
+                output.push_back(data[nextRead_]); //needs optimization
                 data[nextRead_] = T{};
             }
 
@@ -136,7 +135,7 @@ void testRingBuffer(size_t bufferSize) {
     }
 
     // Emit and print the elements from the buffer
-    std::vector<MockPackage> emitted = buffer.Emit();
+    // std::vector<MockPackage> emitted = buffer.Emit();
 
     // Print the emitted elements
     std::cout << "Emitted Elements:\n";

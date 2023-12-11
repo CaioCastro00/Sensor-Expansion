@@ -61,32 +61,37 @@ public:
     buffer.clear();
   }
 
-  // void sendViaSerial() const {
-  //     if (isFull()) {
-  //         SerialTransfer myTransfer;  // Instantiate a SerialTransfer object
+  void data(){
 
-  //         // Start the serial communication with a specific baud rate
-  //         Serial.begin(115200);
+  }
 
-  //         // Wait for the serial port to be ready
-  //         while (!Serial);
+  void sendViaSerial() const {
+      if (isFull()) {
+          SerialTransfer myTransfer;  // Instantiate a SerialTransfer object
 
-  //         // Configure the SerialTransfer object with the Serial port
-  //         myTransfer.begin(Serial);
+          // Start the serial communication with a specific baud rate
+          Serial.begin(115200);
 
-  //         // Send the data in the buffer via SerialTransfer
-  //         if (!buffer.empty()) {
-  //             myTransfer.sendDatum(buffer.buffer[0], 243);
-  //         }
+          // Wait for the serial port to be ready
+          while (!Serial);
 
-  //         // Optionally, wait for the transmission to complete
-  //         while (!myTransfer.available());
+          // Configure the SerialTransfer object with the Serial port
+          myTransfer.begin(Serial);
 
-  //         // Close the serial port
-  //         Serial.end();
-  //     }
-  // }
-  std::vector<char> buffer;
+          // Send the data in the buffer via SerialTransfer
+          if (!buffer.empty()) {
+              myTransfer.sendDatum(buffer[0], 243);
+          }
+
+          // Optionally, wait for the transmission to complete
+          while (!myTransfer.available());
+
+          // Close the serial port
+          Serial.end();
+      }
+  }
+  
+  std::vector<char> buffer; // Should be private for security measure
   
 private:
   size_t capacity_;
