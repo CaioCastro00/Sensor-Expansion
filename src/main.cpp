@@ -5,6 +5,7 @@
 #include "math.h"
 #include "Wire.h"
 #include "SerialTransfer.h"
+#include "TestManager.h"
 
 
 struct MockPackage1
@@ -25,14 +26,23 @@ struct MockPackage2
 class Buffer
 {
 public:
-  Buffer(size_t capacity, size_t datasize) : capacity_(capacity), size_(0), datasize_(datasize) {}
+  Buffer(size_t capacity, size_t datasize) : capacity_(capacity), size_(0), datasize_(datasize) {
+    buffer.reserve(capacity_);
+  }
+
+  // template <typename T>
+  // void addItem(const T &item)
+  // {
+  //   // Serialize the item and append it to the buffer
+  //   const char *itemBytes = reinterpret_cast<const char *>(&item);
+  //   buffer.insert(buffer.end(), itemBytes, itemBytes + sizeof(T));
+  //   size_++;
+  // }
 
   template <typename T>
-  void addItem(const T &item)
-  {
-    // Serialize the item and append it to the buffer
+  void addItem(const T& item) {
     const char *itemBytes = reinterpret_cast<const char *>(&item);
-    buffer.insert(buffer.end(), itemBytes, itemBytes + sizeof(T));
+    buffer.emplace_back(itemBytes, itemBytes + sizeof(T));
     size_++;
   }
 
@@ -59,6 +69,7 @@ public:
   void clearBuffer()
   {
     buffer.clear();
+    size_ = 0;
   }
 
   // void sendViaSerial() const {
@@ -98,34 +109,38 @@ SerialTransfer myTransfer;
 void setup()
 {
 
+  
   Serial.begin(115200);
   myTransfer.begin(Serial);
   Buffer buffer(243, 9);
-
-  delay(5000);
-
-  for (uint8_t i = 1; i < 10; i++)
+  
   {
-    MockPackage1 p;
-    p = {25, 200, 1000.0F + i};
-    buffer.addItem(p);
+    Timer timer;
+    delay(5000);
+
+    for (uint8_t i = 1; i < 10; i++)
+    {
+      MockPackage1 p;
+      p = {25, 200, 1000.0F + i};
+      buffer.addItem(p);
+    }
+
+    for (uint8_t i = 10; i < 28; i++)
+    {
+      MockPackage2 p;
+      p = {1, 300, 1};
+      buffer.addItem(p);
+    }
   }
 
-  for (uint8_t i = 10; i < 28; i++)
-  {
-    MockPackage2 p;
-    p = {1, 300, 1};
-    buffer.addItem(p);
-  }
-
-  // Serial.println();
-  // MockPackage1 retrievedPackage1 = buffer.getItem<MockPackage1>(0);
-  // Serial.print("Retrieved Package:");
-  // Serial.print(retrievedPackage1.datagram_ID);
-  // Serial.print(" , Timestamp:");
-  // Serial.print(retrievedPackage1.timestamp);
-  // Serial.print(" , Value:");
-  // Serial.println(retrievedPackage1.value);
+  Serial.println();
+  MockPackage1 retrievedPackage1 = buffer.getItem<MockPackage1>(0);
+  Serial.print("Retrieved Package:");
+  Serial.print(retrievedPackage1.datagram_ID);
+  Serial.print(" , Timestamp:");
+  Serial.print(retrievedPackage1.timestamp);
+  Serial.print(" , Value:");
+  Serial.println(retrievedPackage1.value);
 
   // std::cout << "Retrieved Package: " << retrievedPackage1.datagram_ID << ", Value: " << retrievedPackage1.value << std::endl;
   // printf("%f\n", retrievedPackage1.value);
@@ -146,7 +161,10 @@ void setup()
 
   // auto exitBuffer;
   // std::memcpy(&exitBuffer, &buffer.buffer[0], 243);
-  uint8_t size = myTransfer.sendDatum(buffer.buffer[0], 243);
+  {
+    Timer timer;
+    uint8_t size = myTransfer.sendDatum(buffer.buffer[0], 243);
+  }
   // uint8_t size = myTransfer.sendDatum(buffer.buffer.data(), 243);
   // Serial.println();
   // Serial.println(size);

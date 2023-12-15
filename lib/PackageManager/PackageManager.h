@@ -1,136 +1,131 @@
-#include <iostream>
+#include <Arduino.h>
 #include <vector>
-#include "Types.h"
+#include <iostream>
+#include <cstring>
+#include "math.h"
+#include "Wire.h"
+#include "SerialTransfer.h"
 
-// Circular Buffer class
-class PacketBuffer {
+
+struct MockPackage1
+{
+  uint8_t datagram_ID;     // 1 Byte - unsigned char   // Define type of next payload data
+  uint32_t timestamp;      // 4 Byte - unsigned long
+  float_t value;           // 4 Byte
+} __attribute__((packed)); // attribute packed: Set smallest possible alignment, remove every padding.
+
+struct MockPackage2
+{
+  uint8_t datagram_ID;     // 1 Byte - unsigned char   // Define type of next payload data
+  uint32_t timestamp;      // 4 Byte - unsigned long
+  uint8_t value;           // 1 Byte
+  char padding[3];         // 3 Bytes
+} __attribute__((packed)); // attribute packed: Set smallest possible alignment, remove every padding.
+
+class Buffer {
 public:
 
-    // Constructor
-    PacketBuffer(size_t capacity) : capacity_(capacity), size_(0), head_(0), tail_(0) {
-        buffer_.resize(capacity, nullptr);
+    Buffer(size_t capacity, size_t datasize) : capacity_(capacity), size_(0), datasize_(datasize) {}
+
+    Buffer(const Buffer& buffer) : capacity_(buffer.capacity_), size_(buffer.size_), datasize_(buffer.datasize_) {
+        std::cout << "copied" << std::endl;
     }
 
-    // Destructor
-    ~PacketBuffer() {
-        clear();
+    template <typename T>
+    void addItem(const T& item) {
+        // Serialize the item and append it to the buffer
+        const char* itemBytes = reinterpret_cast<const char*>(&item);
+        buffer.insert(buffer.end(), itemBytes, itemBytes + sizeof(T));
+        size_++;
     }
 
-    bool Is_BufferFull(void){
-        return(IsFull_Flag);
+    template <typename T>
+    T getItem(size_t index) const {
+        // Deserialize the item from the buffer
+        T item;
+        std::memcpy(&item, &buffer[index], sizeof(T));
+        return item;
     }
 
-    bool Is_BufferEmpty(){
-        int temp = 0;
-        if((head_ == tail_) && (IsFull_Flag != 1)){
-            temp = 1;
-        }
-        return(temp);
+    bool isFull() const {
+        // Implement based on your specific requirements
+        return (size_*12 == capacity_); // Multiply size_ to the struct size
     }
 
-    void addPacket(Package* packet, size_t size) {
-        if(Is_BufferFull()){
-
-        }
-        else{
-            if (size < sizeof(FloatPayload)) { // Change size so each one have 12 B
-                // If the packet size is smaller than biggest structure, add padding
-                FloatPayload* paddedPacket = new FloatPayload(*reinterpret_cast<FloatPayload*>(packet));
-                buffer_[head_] = paddedPacket;
-            } else {
-                // If the packet size is larger, directly add the packet without padding
-                buffer_[head_] = packet;
-            }
-
-            head_ = (head_ + 1) % capacity_;
-            if(head_ == tail_){
-                IsFull_Flag = 1;
-            }
-            size_++;
-        }
+    bool isEmpty() const {
+        return buffer.empty();
     }
 
-    // Remove and get the oldest packet from the buffer
-    Package* getOldestPacket() {
-        if(Is_BufferEmpty()){
-            return 0;
-        }
-        else{
-            // if (size_ > 0) {
-                Package* packet = buffer_[tail_];
-                buffer_[tail_] = nullptr;
-                tail_ = (tail_ + 1) % capacity_;
-                IsFull_Flag = 0;
-                size_--;
-                return packet;
-            // }
-        }
+    void clearBuffer(){
+        buffer.clear();
     }
 
-    // Get the current size of the buffer
-    size_t getSize() const {
-        return size_;
-    }
+    void sendViaSerial() const {
+      if (isFull()) {
+          SerialTransfer myTransfer;  // Instantiate a SerialTransfer object
 
-    void printBuffer() {
-        std::cout << "Packets in the buffer:" << std::endl;
-        size_t index = head_;
-        for (size_t i = 0; i < size_; ++i) {
-            Package* packet = buffer_[index];
-            std::cout << "Packet ID: " << static_cast<int>(packet->datagram_ID)
-                      << ", Timestamp: " << packet->timestamp << std::endl;
-            index = (index + 1) % capacity_;
-        }
-    }
+          // Start the serial communication with a specific baud rate
+          Serial.begin(115200);
 
-    // Clear all packets from the buffer
-    void clear() {
-        for (auto packet : buffer_) {
-            delete packet;
-        }
-        buffer_.clear();
-        size_ = 0;
-        head_ = 0;
-        tail_ = 0;
-    }
+          // Wait for the serial port to be ready
+          while (!Serial);
 
+          // Configure the SerialTransfer object with the Serial port
+          myTransfer.begin(Serial);
+
+          // Send the data in the buffer via SerialTransfer
+          if (!buffer.empty()) {
+              myTransfer.sendDatum(buffer[0], 243);
+          }
+
+          // Optionally, wait for the transmission to complete
+          while (!myTransfer.available());
+
+          // Close the serial port
+          Serial.end();
+      }
+  }
+  
+  std::vector<char> buffer; // Should be private for security measure
+  
 
 private:
     size_t capacity_;
     size_t size_;
-    size_t head_;
-    size_t tail_;
-    bool IsFull_Flag;
-    std::vector<Package*> buffer_;
+    size_t datasize_;
 };
 
-/*
-void testBuffer() {
-    // Create a packet buffer with a capacity of 5 packets
-    PacketBuffer buffer(5);
+int main() {
+    Buffer buffer(243, 9);
 
-    // Add some example packets to the buffer
-    for (int i = 0; i < 8; ++i) {
-        // Use the constructor to create FloatPayload
-        FloatPayload* packet = new FloatPayload{static_cast<uint8_t>(i), i * 1000, 3.14f + i};
-        buffer.addPacket(packet, 9);
+    for (uint8_t i = 1; i < 10; i++)
+    {
+        MockPackage1 p;
+        p = {25, 200, 1000.0F + i};
+        buffer.addItem(p);
     }
 
-    // Print the packets in the buffer
-    buffer.printBuffer();
 
-    // Get and print packets from the buffer
-    std::cout << "\nRetrieving packets from the buffer:" << std::endl;
-    while (buffer.getSize() > 0) {
-        Package* packet = buffer.getOldestPacket();
-        if (packet) {
-            std::cout << "Packet ID: " << static_cast<int>(packet->datagram_ID)
-                      << ", Timestamp: " << packet->timestamp << std::endl;
-            delete packet; // Remember to delete the packet after using it
-        }
+    for (uint8_t i = 10; i < 28; i++)
+    {
+        MockPackage2 p;
+        p  = {i, 300, static_cast<uint8_t>(i%2) };
+        buffer.addItem(p);
     }
 
-    // Clear the buffer
-    buffer.clear();
+    MockPackage1 retrievedPackage1 = buffer.getItem<MockPackage1>(0);
+    std::cout << "Retrieved Package: " << retrievedPackage1.datagram_ID << ", Value: " << retrievedPackage1.value << std::endl;
+    printf("%f\n", retrievedPackage1.value);
+
+    MockPackage2 retrievedPackage2 = buffer.getItem<MockPackage2>(312);
+    std::cout << "Retrieved Package: " << retrievedPackage2.datagram_ID << ", Value: " << retrievedPackage2.value << std::endl;
+    printf("%i\n", retrievedPackage2.value);
+   
+
+    // Send the buffer via serial
+    // buffer.sendViaSerial();
+
+    return 0;
 }
-*/
+
+int main();
