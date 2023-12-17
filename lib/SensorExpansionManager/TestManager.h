@@ -33,3 +33,14 @@ private:
     std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTimepoint;
 
 };
+
+template <typename func>
+void TestDecorator(func T){
+
+    std::cout << "Initiating Test";
+    {
+        Timer timer;
+        T();
+    }
+    std::cout << "Finalizing Test";
+};

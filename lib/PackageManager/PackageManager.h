@@ -84,9 +84,9 @@ public:
           // Close the serial port
           Serial.end();
       }
-  }
-  
-  std::vector<char> buffer; // Should be private for security measure
+    }
+ 
+    std::vector<char> buffer; // Should be private for security measure
   
 
 private:
@@ -95,37 +95,38 @@ private:
     size_t datasize_;
 };
 
-int main() {
-    Buffer buffer(243, 9);
 
-    for (uint8_t i = 1; i < 10; i++)
-    {
-        MockPackage1 p;
-        p = {25, 200, 1000.0F + i};
-        buffer.addItem(p);
-    }
+// int main() {
+//     Buffer buffer(243, 9);
+
+//     for (uint8_t i = 1; i < 10; i++)
+//     {
+//         MockPackage1 p;
+//         p = {25, 200, 1000.0F + i};
+//         buffer.addItem(p);
+//     }
 
 
-    for (uint8_t i = 10; i < 28; i++)
-    {
-        MockPackage2 p;
-        p  = {i, 300, static_cast<uint8_t>(i%2) };
-        buffer.addItem(p);
-    }
+//     for (uint8_t i = 10; i < 28; i++)
+//     {
+//         MockPackage2 p;
+//         p  = {i, 300, static_cast<uint8_t>(i%2) };
+//         buffer.addItem(p);
+//     }
 
-    MockPackage1 retrievedPackage1 = buffer.getItem<MockPackage1>(0);
-    std::cout << "Retrieved Package: " << retrievedPackage1.datagram_ID << ", Value: " << retrievedPackage1.value << std::endl;
-    printf("%f\n", retrievedPackage1.value);
+//     MockPackage1 retrievedPackage1 = buffer.getItem<MockPackage1>(0);
+//     std::cout << "Retrieved Package: " << retrievedPackage1.datagram_ID << ", Value: " << retrievedPackage1.value << std::endl;
+//     printf("%f\n", retrievedPackage1.value);
 
-    MockPackage2 retrievedPackage2 = buffer.getItem<MockPackage2>(312);
-    std::cout << "Retrieved Package: " << retrievedPackage2.datagram_ID << ", Value: " << retrievedPackage2.value << std::endl;
-    printf("%i\n", retrievedPackage2.value);
+//     MockPackage2 retrievedPackage2 = buffer.getItem<MockPackage2>(312);
+//     std::cout << "Retrieved Package: " << retrievedPackage2.datagram_ID << ", Value: " << retrievedPackage2.value << std::endl;
+//     printf("%i\n", retrievedPackage2.value);
    
 
-    // Send the buffer via serial
-    // buffer.sendViaSerial();
+//     // Send the buffer via serial
+//     // buffer.sendViaSerial();
 
-    return 0;
-}
+//     return 0;
+// }
 
-int main();
+// int main();

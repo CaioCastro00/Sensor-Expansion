@@ -5,107 +5,14 @@
 #include "math.h"
 #include "Wire.h"
 #include "SerialTransfer.h"
+#include "CommunicationManager.h"
+#include "PackageManager.h"
 #include "TestManager.h"
 
 
-struct MockPackage1
-{
-  uint8_t datagram_ID;     // 1 Byte - unsigned char   // Define type of next payload data
-  uint32_t timestamp;      // 4 Byte - unsigned long
-  float_t value;           // 4 Byte
-} __attribute__((packed)); // attribute packed: Set smallest possible alignment, remove every padding.
-
-struct MockPackage2
-{
-  uint8_t datagram_ID;     // 1 Byte - unsigned char   // Define type of next payload data
-  uint32_t timestamp;      // 4 Byte - unsigned long
-  uint8_t value;           // 1 Byte
-  char padding[3];         // 3 Bytes
-} __attribute__((packed)); // attribute packed: Set smallest possible alignment, remove every padding.
-
-class Buffer
-{
-public:
-  Buffer(size_t capacity, size_t datasize) : capacity_(capacity), size_(0), datasize_(datasize) {
-    buffer.reserve(capacity_);
-  }
-
-  // template <typename T>
-  // void addItem(const T &item)
-  // {
-  //   // Serialize the item and append it to the buffer
-  //   const char *itemBytes = reinterpret_cast<const char *>(&item);
-  //   buffer.insert(buffer.end(), itemBytes, itemBytes + sizeof(T));
-  //   size_++;
-  // }
-
-  template <typename T>
-  void addItem(const T& item) {
-    const char *itemBytes = reinterpret_cast<const char *>(&item);
-    buffer.emplace_back(itemBytes, itemBytes + sizeof(T));
-    size_++;
-  }
-
-  template <typename T>
-  T getItem(size_t index) const
-  {
-    // Deserialize the item from the buffer
-    T item;
-    std::memcpy(&item, &buffer[index], sizeof(T));
-    return item;
-  }
-
-  bool isFull() const
-  {
-    // Implement based on your specific requirements
-    return ((size_ * datasize_) == capacity_); // Multiply size_ to the struct size
-  }
-
-  bool isEmpty() const
-  {
-    return buffer.empty();
-  }
-
-  void clearBuffer()
-  {
-    buffer.clear();
-    size_ = 0;
-  }
-
-  // void sendViaSerial() const {
-  //     if (isFull()) {
-  //         SerialTransfer myTransfer;  // Instantiate a SerialTransfer object
-
-  //         // Start the serial communication with a specific baud rate
-  //         Serial.begin(115200);
-
-  //         // Wait for the serial port to be ready
-  //         while (!Serial);
-
-  //         // Configure the SerialTransfer object with the Serial port
-  //         myTransfer.begin(Serial);
-
-  //         // Send the data in the buffer via SerialTransfer
-  //         if (!buffer.empty()) {
-  //             myTransfer.sendDatum(buffer.buffer[0], 243);
-  //         }
-
-  //         // Optionally, wait for the transmission to complete
-  //         while (!myTransfer.available());
-
-  //         // Close the serial port
-  //         Serial.end();
-  //     }
-  // }
-  std::vector<char> buffer;
-  
-private:
-  size_t capacity_;
-  size_t size_;
-  size_t datasize_;
-};
-
 SerialTransfer myTransfer;
+
+
 void setup()
 {
 
@@ -113,7 +20,7 @@ void setup()
   Serial.begin(115200);
   myTransfer.begin(Serial);
   Buffer buffer(243, 9);
-  
+
   {
     Timer timer;
     delay(5000);
