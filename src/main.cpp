@@ -7,47 +7,65 @@
 #include "SerialTransfer.h"
 #include "CommunicationManager.h"
 #include "PackageManager.h"
-#include "TestManager.h"
+#include "PackageTypes.h"
+#include "ProfileManager.h"
+#include "SensorExpansionManager.h"
+
+uint32_t lastTime = 0;
+
+uint32_t nextUpdate = 0;
 
 
 SerialTransfer myTransfer;
+PackageManager buffer(BUFFER_MAX_SIZE, PACKAGE_SIZE, &myTransfer);
 
+void fillBuffer();
 
-void setup()
-{
+void setup(){
 
   
   Serial.begin(115200);
   myTransfer.begin(Serial);
-  Buffer buffer(243, 9);
+
+  delay(5000);
 
   {
-    Timer timer;
-    delay(5000);
+    ProfileTimer timer("filling");
+    
+    Serial.println();
+    Serial.print(" , isFull:");
+    Serial.println(buffer.isFull());
+    Serial.print(" , getSize:");
+    Serial.println(buffer.getSize());
 
-    for (uint8_t i = 1; i < 10; i++)
-    {
-      MockPackage1 p;
-      p = {25, 200, 1000.0F + i};
-      buffer.addItem(p);
-    }
+    fillBuffer();
+    lastTime = micros();
+    buffer.sendViaSerial();
+    lastTime = micros() - lastTime;
 
-    for (uint8_t i = 10; i < 28; i++)
-    {
-      MockPackage2 p;
-      p = {1, 300, 1};
-      buffer.addItem(p);
-    }
+    Serial.println("END: ");
+    Serial.println(lastTime);
+
+    Serial.println();
+    Serial.print(" , isFull:");
+    Serial.println(buffer.isFull());
+    Serial.print(" , getSize:");
+    Serial.println(buffer.getSize());
+
   }
 
-  Serial.println();
-  MockPackage1 retrievedPackage1 = buffer.getItem<MockPackage1>(0);
-  Serial.print("Retrieved Package:");
-  Serial.print(retrievedPackage1.datagram_ID);
-  Serial.print(" , Timestamp:");
-  Serial.print(retrievedPackage1.timestamp);
-  Serial.print(" , Value:");
-  Serial.println(retrievedPackage1.value);
+  // Serial.println();
+  // MockPackage1 retrievedPackage1 = buffer.getItem<MockPackage1>(0);
+  // Serial.print("Retrieved Package:");
+  // Serial.print(retrievedPackage1.datagram_ID);
+  // Serial.print(" , Timestamp:");
+  // Serial.print(retrievedPackage1.timestamp);
+  // Serial.print(" , Value:");
+  // Serial.println(retrievedPackage1.value);
+  // Serial.print(" , isFull:");
+  // Serial.println(buffer.isFull());
+  // Serial.print(" , getSize:");
+  // Serial.println(buffer.getSize());
 
   // std::cout << "Retrieved Package: " << retrievedPackage1.datagram_ID << ", Value: " << retrievedPackage1.value << std::endl;
   // printf("%f\n", retrievedPackage1.value);
@@ -69,12 +87,47 @@ void setup()
   // auto exitBuffer;
   // std::memcpy(&exitBuffer, &buffer.buffer[0], 243);
   {
-    Timer timer;
+    ProfileTimer timer("transfer");
     uint8_t size = myTransfer.sendDatum(buffer.buffer[0], 243);
   }
+
+  Serial.print(" , getSize:");
+  Serial.println(buffer.getSize());
   // uint8_t size = myTransfer.sendDatum(buffer.buffer.data(), 243);
   // Serial.println();
   // Serial.println(size);
 };
 
-void loop() {};
+void fillBuffer(){
+
+  for (uint16_t i = 0; i < 500; i++)
+  {
+    Uint32Payload p;
+    p.datagramID = Datagram::ADS1256_PT_01;
+    p.timestamp = millis();
+    p.value = i;
+    buffer.addItem(p);
+  }
+
+  for (uint16_t i = 0; i < 11; i++)
+  {
+    FloatPayload p;
+    p.datagramID =  Datagram::MAX31855_TT_C1;
+    p.timestamp = millis();
+    p.value = 500.0F + i;
+    buffer.addItem(p);
+  }
+
+  for (uint16_t i = 0; i < 500; i++)
+  {
+    Uint8Payload p;
+    p.datagramID = Datagram::VALVE_STATE_SPV_M1;
+    p.timestamp = millis();
+    p.value = i % 2 == 0 ? 1 : 0;
+    buffer.addItem(p);
+  }
+}
+
+void loop(){
+
+};

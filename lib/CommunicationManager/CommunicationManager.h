@@ -1,3 +1,7 @@
+#ifndef COMMUNICATION_MANAGER_H
+#define COMMUNICATION_MANAGER_H
+
+
 #include <Arduino.h>
 #include <iostream>
 #include "Wire.h"
@@ -47,3 +51,4 @@ private:
 
 };
 
+#endif

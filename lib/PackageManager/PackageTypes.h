@@ -1,4 +1,17 @@
+#ifndef PACKAGE_TYPES_H
+#define PACKAGE_TYPES_H
+
 #include "Arduino.h"
+
+#define TRANSMISSION_RATE_HZ            4
+#define PACKAGE_SIZE                    9
+
+//General buffer: Buffer will be empty every 1/4s
+#define BUFFER_MAX_SIZE                 PACKAGE_SIZE * 1020 //4044 * (1/4)s = 1011 ~ 1020 (Considering snario )
+
+//Payload buffer
+#define PAYLOAD_BUFFER_MAX_PACKAGES     28 //Case limit a 254B of SerialTransfer
+#define PAYLOAD_BUFFER_MAX_SIZE         PACKAGE_SIZE * PAYLOAD_BUFFER_MAX_PACKAGES
 
 enum Datagram : uint8_t
 {
@@ -113,3 +126,5 @@ typedef FloatPayload ThermistorPackage;
 // public:
 //     MAX31855Packet getLastPackage();
 // };
+
+#endif
