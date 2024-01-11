@@ -12,6 +12,14 @@
 #ifndef _ADS1256_h
 #define _ADS1256_h
 
+//using the definitions in this library: https://github.com/Flydroid/ADS12xx-Library
+
+#define SPI_SPEED 2500000
+
+/* For information to the register and settings see manual page (p..) */
+
+#define PORTS 8 //Number of AIN ports in ADS1256
+
 //Differential inputs
 #define DIFF_0_1 0b00000001 //A0 + A1 as differential input
 #define DIFF_2_3 0b00100011 //A2 + A3 as differential input
@@ -29,10 +37,10 @@
 #define SING_7 0b01111111 //A7 + GND (common) as single-ended input
 
 //PGA settings
-#define PGA_1 0b00000000 //± 5 V
-#define PGA_2 0b00000001 // ± 2.5 ±
-#define PGA_4 0b00000010 //± 1.25 ±
-#define PGA_8 0b00000011 //± 625 mV
+#define PGA_1  0b00000000 //± 5 V
+#define PGA_2  0b00000001 // ± 2.5 ±
+#define PGA_4  0b00000010 //± 1.25 ±
+#define PGA_8  0b00000011 //± 625 mV
 #define PGA_16 0b00000100 //± 312.5 mV
 #define PGA_32 0b00000101 //+ 156.25 mV
 #define PGA_64 0b00000110 // ± 78.125 mV
@@ -40,57 +48,58 @@
 //Datarate
 #define DRATE_30000SPS 0b11110000
 #define DRATE_15000SPS 0b11100000
-#define DRATE_7500SPS 0b11010000
-#define DRATE_3750SPS 0b11000000
-#define DRATE_2000SPS 0b10110000
-#define DRATE_1000SPS 0b10100001
-#define DRATE_500SPS 0b10010010
-#define DRATE_100SPS 0b10000010
-#define DRATE_60SPS 0b01110010
-#define DRATE_50SPS 0b01100011
-#define DRATE_30SPS 0b01010011
-#define DRATE_25SPS 0b01000011
-#define DRATE_15SPS 0b00110011
-#define DRATE_10SPS 0b00100011
-#define DRATE_5SPS 0b00010011
-#define DRATE_2SPS 0b00000011
+#define DRATE_7500SPS  0b11010000
+#define DRATE_3750SPS  0b11000000
+#define DRATE_2000SPS  0b10110000
+#define DRATE_1000SPS  0b10100001
+#define DRATE_500SPS   0b10010010
+#define DRATE_100SPS   0b10000010
+#define DRATE_60SPS    0b01110010
+#define DRATE_50SPS    0b01100011
+#define DRATE_30SPS    0b01010011
+#define DRATE_25SPS    0b01000011
+#define DRATE_15SPS    0b00110011
+#define DRATE_10SPS    0b00100011
+#define DRATE_5SPS     0b00010011
+#define DRATE_2SPS     0b00000011
 
 //Status register
-#define BITORDER_MSB 0
-#define BITORDER_LSB 1
-#define ACAL_DISABLED 0
-#define ACAL_ENABLED 1
+#define BITORDER_MSB    0
+#define BITORDER_LSB    1
+#define ACAL_DISABLED   0
+#define ACAL_ENABLED    1
 #define BUFFER_DISABLED 0
-#define BUFFER_ENABLED 1
+#define BUFFER_ENABLED  1
 
 //Register addresses
 #define STATUS_REG 0x00
-#define MUX_REG 0x01
-#define ADCON_REG 0x02
-#define DRATE_REG 0x03
-#define IO_REG 0x04
-#define OFC0_REG 0x05
-#define OFC1_REG 0x06
-#define OFC2_REG 0x07
-#define FSC0_REG 0x08
-#define FSC1_REG 0x09
-#define FSC2_REG 0x0A
+#define MUX_REG    0x01
+#define ADCON_REG  0x02
+#define DRATE_REG  0x03
+#define IO_REG     0x04
+#define OFC0_REG   0x05
+#define OFC1_REG   0x06
+#define OFC2_REG   0x07
+#define FSC0_REG   0x08
+#define FSC1_REG   0x09
+#define FSC2_REG   0x0A
 
 //Command definitions
-#define WAKEUP 0b00000000
-#define RDATA 0b00000001
-#define RDATAC 0b00000011
-#define SDATAC 0b00001111
-#define RREG 0b00010000
-#define WREG 0b01010000
-#define SELFCAL 0b11110000
+#define WAKEUP   0b00000000
+#define RDATA    0b00000001
+#define RDATAC   0b00000011
+#define SDATAC   0b00001111
+#define RREG     0b00010000
+#define WREG     0b01010000
+#define SELFCAL  0b11110000
 #define SELFOCAL 0b11110001
 #define SELFGCAL 0b11110010
-#define SYSOCAL 0b11110011
-#define SYSGCAL 0b11110100
-#define SYNC 0b11111100
-#define STANDBY 0b11111101
-#define RESET 0b11111110
+#define SYSOCAL  0b11110011
+#define SYSGCAL  0b11110100
+#define SYNC     0b11111100
+#define STANDBY  0b11111101
+#define RESET    0b11111110
+#define NOP      0b11111111
 //----------------------------------------------------------------
 
 long rawConversion = 0; //24-bit raw value
@@ -161,6 +170,9 @@ int CS_pin;
 	//Constructor
 	ADS1256(int DRDY_pin, int RESET_pin, int SYNC_pin, int CS_pin, float VREF);
 	
+	//Setup function
+	void setupADC(int DRDY_pin, int RESET_pin, int SYNC_pin, int CS_pin, float VREF);
+
 	//Initializing function
 	void InitializeADC();	
 	//ADS1256(int drate, int pga, int byteOrder, bool bufen);
@@ -191,7 +203,7 @@ int CS_pin;
 	//Single input continuous reading
 	long readSingleContinuous();
 	
-	void readBurst(unsigned long numberOfSamples);
+	// void readBurst(unsigned long numberOfSamples);
 	
 	//Cycling through the single-ended inputs
 	long cycleSingle(); //Ax + COM

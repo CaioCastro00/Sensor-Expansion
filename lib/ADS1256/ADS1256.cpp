@@ -34,6 +34,28 @@ ADS1256::ADS1256(int DRDY_pin, int RESET_pin, int SYNC_pin, int CS_pin, float VR
 	
 	_VREF = VREF;
 }
+
+void ADS1256::setupADC(int DRDY_pin, int RESET_pin, int SYNC_pin, int CS_pin, float VREF){
+	_DRDY_pin = DRDY_pin; 
+	pinMode(_DRDY_pin, INPUT);		
+	 
+	if(RESET_pin !=0)
+	{
+	_RESET_pin = RESET_pin;
+	pinMode(_RESET_pin, OUTPUT);
+	}
+	
+	if(SYNC_pin != 0)
+	{
+	_SYNC_pin = SYNC_pin;
+	pinMode(_SYNC_pin, OUTPUT);
+	}
+	
+	_CS_pin = CS_pin;
+	pinMode(_CS_pin, OUTPUT);
+	
+	_VREF = VREF;
+}
 	
 
 //Initialization
@@ -67,7 +89,7 @@ void ADS1256::InitializeADC()
   delay(200);
   writeRegister(ADCON_REG, B00000000); //ADCON - CLK: OFF, SDCS: OFF, PGA = 0 (+/- 5 V)
   delay(200);
-  writeRegister(DRATE_REG, B10000100); //100SPS
+  writeRegister(DRATE_REG, DRATE_1000SPS); //100SPS
   delay(200);
   sendDirectCommand(B11110000); //Offset and self-gain calibration
   delay(200);
@@ -384,7 +406,8 @@ int ADS1256::readGPIO(int gpioPin) //Reading GPIO
 	if(gpioPin == 3)
 	{
 		return(GPIO_bit3);
-	}			
+	}
+	return EXIT_SUCCESS;			
 }
 
 void ADS1256::sendDirectCommand(uint8_t directCommand)

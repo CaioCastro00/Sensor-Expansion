@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <Adafruit_INA219.h>
+#include <Adafruit_MAX31855.h>
 #include <ADS1256.h>
 #include <HX711.h>
 #include "CommunicationManager.h"
@@ -9,42 +10,31 @@
 #include "consts.h"
 
 
-// ADS1256 ads1256(8, 10, 5, 9, 2.500); //DRDY, RESET, SYNC(PDWN), CS, VREF(float)
-
 class SensorExpansionManager{
 
 public:
 
     void init(){
-        ads1256.InitializeADC(); //DRDY, RESET, SYNC(PDWN), CS, VREF(float).
-        hx711.begin(HX711_DOUT_PIN, HX711_SCK_PIN);
-    }
-
-    bool verifyInterval(unsigned long _time, unsigned long _interval){
-        return micros() - _time >= _interval;
+        initializeADS1256();
+        initializeHX711();
+        initializeMAX31855();
+        initializeINA();
+        
     }
 
     bool initializeADS1256(){
+        ads1256.setupADC(ADS1256_DRDY, ADS1256_RST, ADS1256_PDWN, ADS1256_CS, 2.500); //DRDY, RESET, SYNC(PDWN), CS, VREF(float).
+        ads1256.InitializeADC();
         return true;
-    }
-
-    void updateADS1256data(){
-
-        for (int j = 0; j < 4; j++){
-            ads1256.convertToVoltage(ads1256.cycleDifferential());
-        }
-        
-        ads1256.stopConversion();
     }
 
     bool initializeHX711(){
+        hx711.begin(HX711_DOUT_PIN, HX711_SCK_PIN);
         return true;
     }
 
-    // getHX711data(){}
-
-    void updateHX711data(){
-
+    bool initializeMAX31855(){
+        return true;
     }
 
     bool initializeINA(){
@@ -55,86 +45,69 @@ public:
         return true;
     }
 
-    // getINAdata(){}
-    
-    void updateINAdata(){
+    void getADS1256data(){
 
-    }
-
-
-    void ads1256_function(){
-        if (Serial.available() > 0)
+        for (int i = 0; i < PORTS; i++)
         {
-            char commandCharacter = Serial.read(); //we use characters (letters) for controlling the switch-case
-
-            switch (commandCharacter) //based on the command character, we decide what to do
-            {
-                //--------------------------------------------------------------------------------------------------------
-                case 'D': //Cycle differential inputs (A0+A1, A2+A3, A4+A5, A6+A7)
-                    while (Serial.read() != 's') //The conversion is stopped by a character received from the serial port
-                    {
-                    for (int j = 0; j < 4; j++)
-                    {
-                        Serial.print(ads1256.convertToVoltage(ads1256.cycleDifferential()), 4);//print the converted differential results with 4 digits
-                        Serial.print("\t"); //tab separator to separate the 4 conversions shown in the same line
-                    }
-                    Serial.println(" ");//Printing a linebreak - this will put the next 4 conversions in a new line
-                    }
-                    ads1256.stopConversion();
-                    break;
-                //--------------------------------------------------------------------------------------------------------
-                case 'B': //Speed test
-                    {
-                    ads1256.setDRATE(DRATE_30000SPS); //Set speed to 300000 sps
-                    ads1256.setMUX(DIFF_6_7); //Set input to A6(+) & A7(-)
-
-                    //Variables to store and measure elapsed time and define the number of conversions
-                    long numberOfSamples = 150000; //Number of conversions
-                    long finishTime = 0;
-                    long startTime = micros();
-
-                    for (long i = 0; i < numberOfSamples; i++)
-                    {
-                        ads1256.readSingleContinuous();            
-                        //Note: here we just perform the readings and we don't print the results
-                    }
-
-                    finishTime = micros() - startTime; //Calculate the elapsed time
-
-                    ads1256.stopConversion();
-
-                    //Printing the results
-                    Serial.print("Total conversion time for 150k samples: ");
-                    Serial.print(finishTime);
-                    Serial.println(" us");
-
-                    Serial.print("Sampling rate: ");
-                    Serial.print(numberOfSamples * (1000000.0 / finishTime), 3);
-                    Serial.println(" SPS");
-                    }
-                    break;
-                //--------------------------------------------------------------------------------------------------------
-            }
+            _ads1256data = ads1256.convertToVoltage(ads1256.cycleSingle());
+            updateADS1256data(i+5);
         }
+       
+        ads1256.stopConversion();
     }
 
+    void updateADS1256data(int id){
+        ads1256package.datagramID =  (Datagram) id;
+        ads1256package.timestamp = millis();
+        ads1256package.value = _ads1256data;
+        buffer.addItem(ads1256package);
+    }
 
+    void getHX711data(){
 
+    }
+
+    void getMAX31855data(){
+
+    }
+
+    void getINAdata(){
+
+    }
 
 
 private:
 
     Adafruit_INA219 ina219;
+    Adafruit_MAX31855 max31855;
     ADS1256 ads1256;
     HX711 hx711;
+    // thermistor
+    // valvestate
+
+    ADS1256Package ads1256package;
+    HX711Package hx711package;
+    INAPackage inapackage;
+    MAX31855Package max31855package;
+    ThermistorPackage thermistorpackage;
+    ValveStatePackage valvestatepackage;
+
+    uint8_t _valvestate;
+    float_t _hx711data;
+    float_t _inadata;
+    float_t _max31855data;
+    float_t _thermistordata;
+    uint32_t _ads1256data;
 
     bool _reading_ADS;
     bool _reading_HX;
+    bool _reading_INA;
+    bool _reading_MAX;
 
     unsigned long _updateInterval_ADS;
     unsigned long _updateInterval_HX;
-
-
+    unsigned long _updateInterval_INA;
+    unsigned long _updateInterval_MAX;
 
 
 };

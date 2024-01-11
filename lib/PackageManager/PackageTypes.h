@@ -47,6 +47,21 @@ enum Datagram : uint8_t
     INA219_CURRENT_DHE
 };
 
+/*
+|     timestamp     | 4B
+|  id |    padd     | 1B + 3B -> Normal alligment
+|      value        | 4B
+*/
+
+/*
+|     timestamp     | padd | 4B + 1B -> Possible normal alligment
+|  id  |       value       | 5B
+*/
+
+/*
+|     timestamp     |  id  |       value       | 9B -> Smallest possible alligment
+*/
+// https://www.geeksforgeeks.org/structure-member-alignment-padding-and-data-packing/
 
 struct Package
 {
@@ -67,36 +82,6 @@ struct Uint8Payload : Package
     // } __attribute__((packed, aligned(X)));
 } __attribute__((packed));
 
-template <class T>
-struct PackageBuffer
-{
-    uint16_t bufferSize; // 2B
-    uint8_t errorCode;   // 1B
-    T buffer[27];  // 27*9B
-} __attribute__((packed));
-
-// union PayloadUnion {
-//     FloatPayload floatPayload;
-//     Uint8Payload uint8Payload;
-// };
-
-/*
-|     timestamp     | 4B
-|  id |    padd     | 1B + 3B -> Normal alligment
-|      value        | 4B
-*/
-
-/*
-|     timestamp     | padd | 4B + 1B -> Possible normal alligment
-|  id  |       value       | 5B
-*/
-
-/*
-|     timestamp     |  id  |       value       | 9B -> Smallest possible alligment
-*/
-// https://www.geeksforgeeks.org/structure-member-alignment-padding-and-data-packing/
-
-
 struct Uint16Payload : Package
 {
     uint16_t value;
@@ -113,9 +98,27 @@ struct Uint64Payload : Package
     uint64_t value;
 } __attribute__((packed));
 
+// template <class T>
+// struct PackageBuffer
+// {
+//     uint16_t bufferSize; // 2B
+//     uint8_t errorCode;   // 1B
+//     T buffer[27];  // 27*9B
+// } __attribute__((packed));
+
+// union PayloadUnion {
+//     FloatPayload floatPayload;
+//     Uint8Payload uint8Payload;
+// };
+
 // typedef struct PackageBuffer<T> PackageBuffer;
-typedef FloatPayload MAX31855Packet;
+
+typedef Uint8Payload ValveStatePackage;
+typedef FloatPayload MAX31855Package;
 typedef FloatPayload ThermistorPackage;
+typedef FloatPayload HX711Package;
+typedef FloatPayload INAPackage;
+typedef Uint32Payload ADS1256Package;
 
 // class MAX31855Wrapper
 // {
