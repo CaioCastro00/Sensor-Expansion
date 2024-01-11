@@ -67,6 +67,19 @@ Adafruit_MAX31855::Adafruit_MAX31855(int8_t _cs, SPIClass *_spi)
 
 /**************************************************************************/
 /*!
+    @brief  Setup a new Adafruit_MAX31855 class.
+
+    @param _sclk The pin to use for SPI Serial Clock.
+    @param _cs The pin to use for SPI Chip Select.
+    @param _miso The pin to use for SPI Master In Slave Out.
+*/
+/**************************************************************************/
+void Adafruit_MAX31855::setup(int8_t _sclk, int8_t _cs, int8_t _miso) {
+  Adafruit_MAX31855(_sclk, _cs, _miso);
+}
+
+/**************************************************************************/
+/*!
     @brief  Setup the HW
 
     @return True if the device was successfully initialized, otherwise false.
@@ -77,7 +90,6 @@ bool Adafruit_MAX31855::begin(void) {
 
   return initialized;
 }
-
 /**************************************************************************/
 /*!
     @brief  Read the internal temperature.

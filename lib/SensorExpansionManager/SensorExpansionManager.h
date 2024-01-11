@@ -19,7 +19,6 @@ public:
         initializeHX711();
         initializeMAX31855();
         initializeINA();
-        
     }
 
     bool initializeADS1256(){
@@ -30,16 +29,18 @@ public:
 
     bool initializeHX711(){
         hx711.begin(HX711_DOUT_PIN, HX711_SCK_PIN);
+        hx711.set_scale(CALIBRATION_FACTOR);
+        hx711.tare();
         return true;
     }
 
     bool initializeMAX31855(){
-        return true;
+        max31855.setup(MAX31855_SCK_PIN, MAX31855_CS_PIN, MAX31855_MISO_PIN); // int8_t _sclk, int8_t _cs, int8_t _miso
+        return max31855.begin();
     }
 
     bool initializeINA(){
         if (!ina219.begin()){
-            Serial.println("INA error");
             return false;
         }
         return true;
@@ -64,14 +65,29 @@ public:
     }
 
     void getHX711data(){
+        _hx711data = hx711.get_units();
+    }
 
+    void updateHX711data(int id){
+        hx711package.datagramID =  (Datagram) id;
+        hx711package.timestamp = millis();
+        hx711package.value = _hx711data;
+        buffer.addItem(hx711package);
     }
 
     void getMAX31855data(){
 
     }
 
+    void updateMAX31855data(){
+
+    }
+
     void getINAdata(){
+
+    }
+
+    void updateINAdata(){
 
     }
 
