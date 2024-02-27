@@ -130,4 +130,43 @@ void fillBuffer(){
 
 void loop(){
 
+  unsigned long start = millis();
+
+  // if (millis() - avionicsManager.getRate4Interval() > 1000 / 4)
+  // {
+  //   
+  //   avionicsManager.setRate4Interval(millis());
+  // }
+
+  // if (millis() - avionicsManager.getRate10Interval() > 1000 / 10)
+  // {
+  //  
+  //   avionicsManager.setRate10Interval(millis());
+  // }
+
+  // if (millis() - avionicsManager.getRate80Interval() > 1000 / 80)
+  // {
+  //   
+  //   avionicsManager.setRate80Interval(millis());
+  // }
+
+  // if (millis() - avionicsManager.getRate100Interval() > 1000 / 100)
+  // {
+  //   
+  //   avionicsManager.setRate100Interval(millis());
+  // }
+
+  // if (millis() - avionicsManager.getRate1000Interval() > 1000 / 1000)
+  // {
+  //   
+  //   avionicsManager.setRate1000Interval(millis());
+  // }
+
+
+  // avionicsManager.writeSD();
+  // avionicsManager.flushDataFile();
+  
+  unsigned long end = millis();
+  Serial.println(end-start);
+
 };

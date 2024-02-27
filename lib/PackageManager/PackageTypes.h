@@ -25,8 +25,8 @@ enum Datagram : uint8_t
     // 15 a 24 - uint32_t(4B)
     ADS1256_PT_01 = 15,
     ADS1256_PT_T1,
-    ADS1256_PT_T2,
     ADS1256_PT_C1,
+    ADS1256_PT_C2,
     ADS1256_PT_N1,
     ADS1256_WT_C1,
 
@@ -117,7 +117,7 @@ typedef Uint8Payload ValveStatePackage;
 typedef FloatPayload MAX31855Package;
 typedef FloatPayload ThermistorPackage;
 typedef FloatPayload HX711Package;
-typedef FloatPayload INAPackage;
+typedef Uint16Payload INAPackage;
 typedef Uint32Payload ADS1256Package;
 
 // class MAX31855Wrapper
