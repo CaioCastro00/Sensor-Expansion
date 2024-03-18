@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <stdlib.h>
 #include <cstddef>
+#include <cstring>
 #include <memory_resource>
 #include <iostream>
 #include "math.h"

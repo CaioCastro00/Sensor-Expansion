@@ -89,7 +89,7 @@ void ADS1256::InitializeADC()
   delay(200);
   writeRegister(ADCON_REG, B00000000); //ADCON - CLK: OFF, SDCS: OFF, PGA = 0 (+/- 5 V)
   delay(200);
-  writeRegister(DRATE_REG, DRATE_1000SPS); //100SPS
+  writeRegister(DRATE_REG, DRATE_30000SPS); //30000SPS
   delay(200);
   sendDirectCommand(B11110000); //Offset and self-gain calibration
   delay(200);
@@ -407,7 +407,7 @@ int ADS1256::readGPIO(int gpioPin) //Reading GPIO
 	{
 		return(GPIO_bit3);
 	}
-	return EXIT_SUCCESS;			
+	return EXIT_SUCCESS;
 }
 
 void ADS1256::sendDirectCommand(uint8_t directCommand)
@@ -606,6 +606,8 @@ long ADS1256::cycleSingle()
           SPI.transfer(SING_0); //AIN0+AINCOM
           break;
       }
+
+	  
       //Step 2.
       SPI.transfer(B11111100); //SYNC
       delayMicroseconds(4); //t11 delay 24*tau = 3.125 us //delay should be larger, so we delay by 4 us

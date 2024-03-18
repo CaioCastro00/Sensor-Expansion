@@ -1,3 +1,7 @@
+#pragma once
+#ifndef SENSOREXPANSIONMANAGER_H
+#define SENSOREXPANSIONMANAGER_H
+
 #include <Arduino.h>
 #include <Adafruit_INA219.h>
 #include <Adafruit_MAX31855.h>
@@ -6,21 +10,21 @@
 #include "CommunicationManager.h"
 #include "PackageManager.h"
 #include "PackageTypes.h"
-#include "ProfileManager.h"
 #include "ReportManager.h"
 #include "consts.h"
 
 
 class SensorExpansionManager{
-
 public:
 
-    SensorExpansionManager() 
-    : buffer(BUFFER_MAX_SIZE, PACKAGE_SIZE, &myTransfer), 
-      ads1256(ADS1256_DRDY, ADS1256_RST, ADS1256_PDWN, ADS1256_CS, 2.500),
-      hx711(),
-      max31855(MAX31855_SCK_PIN, MAX31855_CS_PIN, MAX31855_MISO_PIN),
-      ina219() {}
+    // SensorExpansionManager() 
+    //   : buffer(BUFFER_MAX_SIZE, PACKAGE_SIZE, &myTransfer), 
+    //     ads1256(ADS1256_DRDY, ADS1256_RST, ADS1256_PDWN, ADS1256_CS, 2.500),
+    //     hx711(),
+    //     max31855(MAX31855_SCK_PIN, MAX31855_CS_PIN, MAX31855_MISO_PIN),
+    //     ina219() {}
+
+    SensorExpansionManager();
 
     // Init
     void init();
@@ -49,12 +53,10 @@ public:
     void setRate10Interval(unsigned long interval);
     unsigned long getRate80Interval();
     void setRate80Interval(unsigned long interval);
-    unsigned long getRate80Interval();
-    void setRate100Interval(unsigned long interval);
     unsigned long getRate100Interval();
-    void setRate1000Interval(unsigned long interval);
+    void setRate100Interval(unsigned long interval);
     unsigned long getRate1000Interval();
-    void setRate200Interval(unsigned long interval);
+    void setRate1000Interval(unsigned long interval);
     
 
 private:
@@ -77,9 +79,9 @@ private:
 
     uint8_t _valvestate;
     float_t _hx711data;
-    float_t _inadata;
     float_t _max31855data;
     float_t _thermistordata;
+    uint16_t _inadata;
     uint32_t _ads1256data;
 
     // bool _reading_ADS;
@@ -98,5 +100,6 @@ private:
     unsigned long _rate100Interval;
     unsigned long _rate1000Interval;
 
-
 };
+
+#endif

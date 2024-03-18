@@ -1,6 +1,7 @@
 #ifndef consts_h
 #define consts_h
 
+
 //--------------- ADS1256 Pin definition ---------------
 #define ADS1256_RST   23  //ADS1256 reset pin
 #define ADS1256_DRDY  22  //ADS1256 data ready
@@ -27,42 +28,42 @@
 
 //-------------- State Machine definition ---------------
 
-enum State : uint8_t
-{
-    PREOP,
-    FILL,
-    BURN,
-    POSTOP,
-    ABORT,
-    HOLD
-};
+// enum State : uint8_t
+// {
+//     PREOP,
+//     FILL,
+//     BURN,
+//     POSTOP,
+//     ABORT,
+//     HOLD
+// };
 
-enum Sensor : uint8_t
-{
-    PT_01,
-    PT_T1,
-    PT_C1 = 1,
-    PT_C2 = 1,
-    PT_N1,
-    TT_O1,
-    TT_T1 = 3,
-    TT_C1,
-    TT_C2 = 4,
-    TT_C3 = 4,
-    TT_C4 = 4,
-    TR_T1,
-    TR_C1,
-    WT_01,
-    WT_T1 = 7,
-    WT_C1
-};
+// enum Sensor : uint8_t
+// {
+//     PT_01,
+//     PT_T1,
+//     PT_C1 = 1,
+//     PT_C2 = 1,
+//     PT_N1,
+//     TT_O1,
+//     TT_T1 = 3,
+//     TT_C1,
+//     TT_C2 = 4,
+//     TT_C3 = 4,
+//     TT_C4 = 4,
+//     TR_T1,
+//     TR_C1,
+//     WT_01,
+//     WT_T1 = 7,
+//     WT_C1
+// };
 
-uint8_t StateMachine[6][9] = {{ 10,   10, 10,  4,  4,  4,  4, 10,   10},
-                              {100,  100, 10, 10,  4, 10,  4, 80,   10},
-                              { 10, 1000, 10, 10, 10,  4, 10, 80, 1000},
-                              { 10,   10, 10,  4, 10,  4, 10, 10,   10},
-                              { 10,   10, 10,  4, 10,  4, 10, 10,   10},
-                              { 10,   10, 10,  4, 10,  4, 10, 10,   10}};
+// uint16_t StateMachine[6][9] = {{ 10,   10, 10,  4,  4,  4,  4, 10,   10},
+//                                 {100,  100, 10, 10,  4, 10,  4, 80,   10},
+//                                 { 10, 1000, 10, 10, 10,  4, 10, 80, 1000},
+//                                 { 10,   10, 10,  4, 10,  4, 10, 10,   10},
+//                                 { 10,   10, 10,  4, 10,  4, 10, 10,   10},
+//                                 { 10,   10, 10,  4, 10,  4, 10, 10,   10}};
 
 
 #endif

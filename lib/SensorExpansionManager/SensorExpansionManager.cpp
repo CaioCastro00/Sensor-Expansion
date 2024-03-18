@@ -1,4 +1,9 @@
+#include "PackageTypes.h"
 #include "SensorExpansionManager.h"
+
+SensorExpansionManager::SensorExpansionManager(): buffer(BUFFER_MAX_SIZE, PACKAGE_SIZE, &myTransfer), max31855(MAX31855_SCK_PIN, MAX31855_CS_PIN, MAX31855_MISO_PIN), ads1256(ADS1256_DRDY, ADS1256_RST, ADS1256_PDWN, ADS1256_CS, 2.500){ //, ads1256(ADS1256_DRDY, ADS1256_RST, ADS1256_PDWN, ADS1256_CS, 2.500) 
+
+}
 
 void SensorExpansionManager::init(){
         initializeADS1256();
@@ -37,7 +42,7 @@ void SensorExpansionManager::getADS1256data(){
     for (int i = 0; i < PORTS; i++)
     {
         _ads1256data = ads1256.convertToVoltage(ads1256.cycleSingle());
-        updateADS1256data(i+5);
+        updateADS1256data(i+15);
     }
     
     ads1256.stopConversion();
@@ -73,7 +78,7 @@ void SensorExpansionManager::updateMAX31855data(int id){
 }
 
 void SensorExpansionManager::getINAdata(){
-    uint16_t _inadata = (static_cast<uint8_t>(ina219.getCurrent_mA()) << 8 ) | (static_cast<uint8_t>(ina219.getBusVoltage_V() + (ina219.getShuntVoltage_mV()) / 1000));
+    _inadata = (static_cast<uint8_t>(ina219.getCurrent_mA()) << 8 ) | (static_cast<uint8_t>(ina219.getBusVoltage_V() + (ina219.getShuntVoltage_mV()) / 1000));
 }
 
 void SensorExpansionManager::updateINAdata(int id){

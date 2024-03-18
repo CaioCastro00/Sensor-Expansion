@@ -7,8 +7,6 @@
  Comment: Visit https://curiousscientist.tech/blog/ADS1256-custom-library
 */
 
-#include "Arduino.h"
-
 #ifndef _ADS1256_h
 #define _ADS1256_h
 
@@ -18,7 +16,7 @@
 
 /* For information to the register and settings see manual page (p..) */
 
-#define PORTS 8 //Number of AIN ports in ADS1256
+#define PORTS 6 //Number of AIN ports used in ADS1256 (MÁX: 8)
 
 //Differential inputs
 #define DIFF_0_1 0b00000001 //A0 + A1 as differential input
@@ -37,10 +35,10 @@
 #define SING_7 0b01111111 //A7 + GND (common) as single-ended input
 
 //PGA settings
-#define PGA_1  0b00000000 //± 5 V
-#define PGA_2  0b00000001 // ± 2.5 ±
-#define PGA_4  0b00000010 //± 1.25 ±
-#define PGA_8  0b00000011 //± 625 mV
+#define PGA_1 0b00000000 //± 5 V
+#define PGA_2 0b00000001 // ± 2.5 ±
+#define PGA_4 0b00000010 //± 1.25 ±
+#define PGA_8 0b00000011 //± 625 mV
 #define PGA_16 0b00000100 //± 312.5 mV
 #define PGA_32 0b00000101 //+ 156.25 mV
 #define PGA_64 0b00000110 // ± 78.125 mV
@@ -48,113 +46,57 @@
 //Datarate
 #define DRATE_30000SPS 0b11110000
 #define DRATE_15000SPS 0b11100000
-#define DRATE_7500SPS  0b11010000
-#define DRATE_3750SPS  0b11000000
-#define DRATE_2000SPS  0b10110000
-#define DRATE_1000SPS  0b10100001
-#define DRATE_500SPS   0b10010010
-#define DRATE_100SPS   0b10000010
-#define DRATE_60SPS    0b01110010
-#define DRATE_50SPS    0b01100011
-#define DRATE_30SPS    0b01010011
-#define DRATE_25SPS    0b01000011
-#define DRATE_15SPS    0b00110011
-#define DRATE_10SPS    0b00100011
-#define DRATE_5SPS     0b00010011
-#define DRATE_2SPS     0b00000011
+#define DRATE_7500SPS 0b11010000
+#define DRATE_3750SPS 0b11000000
+#define DRATE_2000SPS 0b10110000
+#define DRATE_1000SPS 0b10100001
+#define DRATE_500SPS 0b10010010
+#define DRATE_100SPS 0b10000010
+#define DRATE_60SPS 0b01110010
+#define DRATE_50SPS 0b01100011
+#define DRATE_30SPS 0b01010011
+#define DRATE_25SPS 0b01000011
+#define DRATE_15SPS 0b00110011
+#define DRATE_10SPS 0b00100011
+#define DRATE_5SPS 0b00010011
+#define DRATE_2SPS 0b00000011
 
 //Status register
-#define BITORDER_MSB    0
-#define BITORDER_LSB    1
-#define ACAL_DISABLED   0
-#define ACAL_ENABLED    1
+#define BITORDER_MSB 0
+#define BITORDER_LSB 1
+#define ACAL_DISABLED 0
+#define ACAL_ENABLED 1
 #define BUFFER_DISABLED 0
-#define BUFFER_ENABLED  1
+#define BUFFER_ENABLED 1
 
 //Register addresses
 #define STATUS_REG 0x00
-#define MUX_REG    0x01
-#define ADCON_REG  0x02
-#define DRATE_REG  0x03
-#define IO_REG     0x04
-#define OFC0_REG   0x05
-#define OFC1_REG   0x06
-#define OFC2_REG   0x07
-#define FSC0_REG   0x08
-#define FSC1_REG   0x09
-#define FSC2_REG   0x0A
+#define MUX_REG 0x01
+#define ADCON_REG 0x02
+#define DRATE_REG 0x03
+#define IO_REG 0x04
+#define OFC0_REG 0x05
+#define OFC1_REG 0x06
+#define OFC2_REG 0x07
+#define FSC0_REG 0x08
+#define FSC1_REG 0x09
+#define FSC2_REG 0x0A
 
 //Command definitions
-#define WAKEUP   0b00000000
-#define RDATA    0b00000001
-#define RDATAC   0b00000011
-#define SDATAC   0b00001111
-#define RREG     0b00010000
-#define WREG     0b01010000
-#define SELFCAL  0b11110000
+#define WAKEUP 0b00000000
+#define RDATA 0b00000001
+#define RDATAC 0b00000011
+#define SDATAC 0b00001111
+#define RREG 0b00010000
+#define WREG 0b01010000
+#define SELFCAL 0b11110000
 #define SELFOCAL 0b11110001
 #define SELFGCAL 0b11110010
-#define SYSOCAL  0b11110011
-#define SYSGCAL  0b11110100
-#define SYNC     0b11111100
-#define STANDBY  0b11111101
-#define RESET    0b11111110
-#define NOP      0b11111111
-//----------------------------------------------------------------
-
-long rawConversion = 0; //24-bit raw value
-float voltageValue = 0; //human-readable floating point value
-
-int singleEndedChannels[8] = {SING_0, SING_1, SING_2, SING_3, SING_4, SING_5, SING_6, SING_7}; //Array to store the single-ended channels
-int differentialChannels[4] = {DIFF_0_1, DIFF_2_3, DIFF_4_5, DIFF_6_7}; //Array to store the differential channels
-int inputChannel = 0; //Number used to pick the channel from the above two arrays
-char inputMode = ' '; //can be 's' and 'd': single-ended and differential
-
-int pgaValues[7] = {PGA_1, PGA_2, PGA_4, PGA_8, PGA_16, PGA_32, PGA_64}; //Array to store the PGA settings
-int pgaSelection = 0; //Number used to pick the PGA value from the above array
-
-int drateValues[16] =
-{
-  DRATE_30000SPS,
-  DRATE_15000SPS,
-  DRATE_7500SPS,
-  DRATE_3750SPS,
-  DRATE_2000SPS,
-  DRATE_1000SPS,
-  DRATE_500SPS,
-  DRATE_100SPS,
-  DRATE_60SPS,
-  DRATE_50SPS,
-  DRATE_30SPS,
-  DRATE_25SPS,
-  DRATE_15SPS,
-  DRATE_10SPS,
-  DRATE_5SPS,
-  DRATE_2SPS
-}; //Array to store the sampling rates
-
-int drateSelection = 0;
-
-String registers[11] =
-{
-  "STATUS",
-  "MUX",
-  "ADCON",
-  "DRATE",
-  "IO",
-  "OFC0",
-  "OFC1",
-  "OFC2",
-  "FSC0",
-  "FSC1",
-  "FSC2"
-};//Array to store the registers
-
-int registerToRead = 0; //Register number to be read
-int registerToWrite = 0; //Register number to be written
-int registerValueToWrite = 0; //Value to be written in the selected register
-
-
+#define SYSOCAL 0b11110011
+#define SYSGCAL 0b11110100
+#define SYNC 0b11111100
+#define STANDBY 0b11111101
+#define RESET 0b11111110
 //----------------------------------------------------------------
 
 class ADS1256
@@ -203,7 +145,7 @@ int CS_pin;
 	//Single input continuous reading
 	long readSingleContinuous();
 	
-	// void readBurst(unsigned long numberOfSamples);
+	void readBurst(unsigned long numberOfSamples);
 	
 	//Cycling through the single-ended inputs
 	long cycleSingle(); //Ax + COM

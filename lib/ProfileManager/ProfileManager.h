@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 #include <iostream>
-#include <chrono>
+// #include <chrono>
 #include <string>
 #include <algorithm>
 #include <fstream>
@@ -94,7 +94,7 @@ int main(){
 
 */
 
-
+/*Commented
 // Represents the result of a profiled section
 struct ProfileResult
 {
@@ -244,3 +244,4 @@ private:
 //     }
 //     std::cout << "Finalizing Test\n";
 // };
+*/

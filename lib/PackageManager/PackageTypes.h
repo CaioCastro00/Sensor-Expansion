@@ -13,24 +13,54 @@
 #define PAYLOAD_BUFFER_MAX_PACKAGES     28 //Case limit a 254B of SerialTransfer
 #define PAYLOAD_BUFFER_MAX_SIZE         PACKAGE_SIZE * PAYLOAD_BUFFER_MAX_PACKAGES
 
+// enum Datagram
+// {
+//     INIT,
+
+//     // 1 a 14 - uint8_t(1B)
+//     VALVE_STATE_SPV_T1, // 1B
+//     VALVE_STATE_SPV_O1,
+//     VALVE_STATE_SPV_M1,
+
+//     // 15 a 24 - uint32_t(4B)
+//     ADS1256_PT_01 = 15,
+//     ADS1256_PT_T1,
+//     ADS1256_PT_C1,
+//     ADS1256_PT_C2,
+//     ADS1256_PT_N1,
+//     ADS1256_WT_C1,
+
+//     // 25 a 44 - Float_t(4B)
+//     HX711_WT_01 = 25,
+//     HX711_WT_T1,
+//     MAX31855_TT_O1,
+//     MAX31855_TT_T1,
+//     MAX31855_TT_C1,
+//     MAX31855_TT_C2,
+//     MAX31855_TT_C3,
+//     MAX31855_TT_C4,
+//     THERMISTOR_TR_T1,
+//     THERMISTOR_TR_C1,
+//     INA219_VOLTAGE_DL,
+//     INA219_CURRENT_DL,
+//     INA219_VOLTAGE_DHE,
+//     INA219_CURRENT_DHE
+// };
+
+
+
 enum Datagram : uint8_t
 {
     INIT,
-
-    // 1 a 14 - uint8_t(1B)
-    VALVE_STATE_SPV_T1, // 1B
+    VALVE_STATE_SPV_T1,
     VALVE_STATE_SPV_O1,
     VALVE_STATE_SPV_M1,
-
-    // 15 a 24 - uint32_t(4B)
     ADS1256_PT_01 = 15,
     ADS1256_PT_T1,
     ADS1256_PT_C1,
     ADS1256_PT_C2,
     ADS1256_PT_N1,
     ADS1256_WT_C1,
-
-    // 25 a 44 - Float_t(4B)
     HX711_WT_01 = 25,
     HX711_WT_T1,
     MAX31855_TT_O1,
