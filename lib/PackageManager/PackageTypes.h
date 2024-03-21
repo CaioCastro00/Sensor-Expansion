@@ -54,6 +54,7 @@ enum Datagram : uint8_t
     INIT,
     VALVE_STATE_SPV_T1,
     VALVE_STATE_SPV_O1,
+    VALVE_STATE_SPV_O2,
     VALVE_STATE_SPV_M1,
     ADS1256_PT_01 = 15,
     ADS1256_PT_T1,
@@ -69,7 +70,7 @@ enum Datagram : uint8_t
     MAX31855_TT_C2,
     MAX31855_TT_C3,
     MAX31855_TT_C4,
-    THERMISTOR_TR_T1,
+    THERMISTOR_TR_T1, //<-------- Teensy ( fazer código de leitura )
     THERMISTOR_TR_C1,
     INA219_VOLTAGE_DL,
     INA219_CURRENT_DL,
