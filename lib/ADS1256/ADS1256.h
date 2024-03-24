@@ -16,7 +16,8 @@
 
 /* For information to the register and settings see manual page (p..) */
 
-#define PORTS 6 //Number of AIN ports used in ADS1256 (MÁX: 8)
+#define SINGLE_PORTS 5 //Number of single AIN ports used in ADS1256 (MÁX: 8)
+#define DIFF_PORTS 1 //Number of differential AIN ports used in ADS1256 (MÁX: 4)
 
 //Differential inputs
 #define DIFF_0_1 0b00000001 //A0 + A1 as differential input

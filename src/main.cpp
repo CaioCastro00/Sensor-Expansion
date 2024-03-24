@@ -62,7 +62,8 @@ void loop(){
 
   if (millis() - sensorExpansionManager.getRate1000Interval() > 1000 / 1000)
   {
-    sensorExpansionManager.getADS1256data();
+    sensorExpansionManager.getSingleADS1256data();
+    sensorExpansionManager.getDiffADS1256data();
     sensorExpansionManager.setRate1000Interval(millis());
   }
 

@@ -34,7 +34,8 @@ public:
     bool initializeINA();
 
     // Get Data
-    void getADS1256data();
+    void getSingleADS1256data();
+    void getDiffADS1256data();
     void getHX711data();
     void getMAX31855data();
     void getINAdata();

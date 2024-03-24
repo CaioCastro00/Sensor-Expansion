@@ -15,6 +15,7 @@ void SensorExpansionManager::init(){
 bool SensorExpansionManager::initializeADS1256(){
     ads1256.setupADC(ADS1256_DRDY, ADS1256_RST, ADS1256_PDWN, ADS1256_CS, 2.500); //DRDY, RESET, SYNC(PDWN), CS, VREF(float).
     ads1256.InitializeADC();
+    ads1256.setDRATE(DRATE_7500SPS);
     return true;
 }
 
@@ -37,12 +38,23 @@ bool SensorExpansionManager::initializeINA(){
     return true;
 }
 
-void SensorExpansionManager::getADS1256data(){
+void SensorExpansionManager::getSingleADS1256data(){
 
-    for (int i = 0; i < PORTS; i++)
+    for (int i = 0; i < SINGLE_PORTS; i++)
     {
         _ads1256data = ads1256.convertToVoltage(ads1256.cycleSingle());
         updateADS1256data(i+15);
+    }
+    
+    ads1256.stopConversion();
+}
+
+void SensorExpansionManager::getDiffADS1256data(){
+
+    for (int i = 0; i < DIFF_PORTS; i++)
+    {
+        _ads1256data = ads1256.convertToVoltage(ads1256.cycleDifferential());
+        updateADS1256data(i+20);
     }
     
     ads1256.stopConversion();

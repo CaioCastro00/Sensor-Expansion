@@ -89,7 +89,7 @@ void ADS1256::InitializeADC()
   delay(200);
   writeRegister(ADCON_REG, B00000000); //ADCON - CLK: OFF, SDCS: OFF, PGA = 0 (+/- 5 V)
   delay(200);
-  writeRegister(DRATE_REG, DRATE_30000SPS); //30000SPS
+  writeRegister(DRATE_REG, DRATE_7500SPS); //30000SPS
   delay(200);
   sendDirectCommand(B11110000); //Offset and self-gain calibration
   delay(200);
