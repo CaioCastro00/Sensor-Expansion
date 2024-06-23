@@ -128,6 +128,9 @@ void ADS1256::setPGA(int pga) //Setting PGA (input voltage range)
 	_ADCON = _ADCON & _PGA; //Combine the new _ADCON with the _PGA (changes bit 0-2)
 	writeRegister(ADCON_REG, _ADCON);	
 	delay(200);
+	// SPI.transfer(0b11111100); //SYNC
+	// delayMicroseconds(4); //t11 delay 24*tau = 3.125 us //delay should be larger, so we delay by 4 us
+	// SPI.transfer(0b11111111); //WAKEUP
 }
 
 void ADS1256::setCLKOUT(int clkout) //Setting CLKOUT 
@@ -454,6 +457,10 @@ void ADS1256::writeRegister(uint8_t registerAddress, uint8_t registerValueToWrit
 
   SPI.transfer(registerValueToWrite); //pass the value to the register
 
+//   SPI.transfer(0b11111100); //SYNC
+//   delayMicroseconds(4); //t11 delay 24*tau = 3.125 us //delay should be larger, so we delay by 4 us
+//   SPI.transfer(0b11111111); //WAKEUP
+
   digitalWrite(_CS_pin, HIGH);
   SPI.endTransaction();
   delay(100);
@@ -501,8 +508,6 @@ long ADS1256::readSingle() //Reading a single value ONCE using the RDATA command
   
 	return(_outputValue);
 }
-
-
 
 long ADS1256::readSingleContinuous() //Reads the recently selected input channel using RDATAC
 {	
@@ -632,6 +637,75 @@ long ADS1256::cycleSingle()
     }	
   
 	return _outputValue;
+}
+
+long ADS1256::readDifferential() 
+{
+	SPI.beginTransaction(SPISettings(1920000, MSBFIRST, SPI_MODE1));
+	digitalWrite(_CS_pin, LOW); //REF: P34: "CS must stay low during the entire command sequence"  
+	SPI.transfer(0x50 | 1); // 0x50 = WREG //1 = MUX
+	SPI.transfer(0x00);
+	SPI.transfer(DIFF_0_1);  //AIN0+AIN1
+	digitalWrite(_CS_pin, HIGH);	  
+	delay(50);
+	digitalWrite(_CS_pin, LOW); //CS must stay LOW during the entire sequence [Ref: P34, T24]
+	while (digitalRead(_DRDY_pin)) {} //wait for DRDY to go LOW (cheap solution)
+	SPI.transfer(0x50 | 1); // 0x50 = WREG //1 = MUX
+	SPI.transfer(0x00);
+	SPI.transfer(DIFF_0_1); //AIN0+AIN1
+
+	SPI.transfer(0b11111100); //SYNC
+	delayMicroseconds(4); //t11 delay 24*tau = 3.125 us //delay should be larger, so we delay by 4 us
+	SPI.transfer(0b11111111); //WAKEUP
+	SPI.transfer(0b00000001); //Issue RDATA (0000 0001) command
+	delayMicroseconds(7); //Wait t6 time (~6.51 us) REF: P34, FIG:30.
+
+	_outputBuffer[0] = SPI.transfer(0); // MSB 
+	_outputBuffer[1] = SPI.transfer(0); // Mid-byte
+	_outputBuffer[2] = SPI.transfer(0); // LSB
+	
+	_outputValue = ((long)_outputBuffer[0]<<16) | ((long)_outputBuffer[1]<<8) | (_outputBuffer[2]);
+	
+	digitalWrite(_CS_pin, HIGH); //We finished the command sequence, so we set CS to HIGH
+	SPI.endTransaction();
+  
+	return(_outputValue);
+}
+
+long ADS1256::readDifferentialContinuous() 
+{
+	if(_isAcquisitionRunning == false){
+		_isAcquisitionRunning = true;
+		SPI.beginTransaction(SPISettings(1920000, MSBFIRST, SPI_MODE1));
+		digitalWrite(_CS_pin, LOW); //REF: P34: "CS must stay low during the entire command sequence"  
+		SPI.transfer(0x50 | 1); // 0x50 = WREG //1 = MUX
+		SPI.transfer(0x00);
+		SPI.transfer(DIFF_0_1);  //AIN0+AIN1
+		digitalWrite(_CS_pin, HIGH);	  
+		delay(50);
+		digitalWrite(_CS_pin, LOW); //CS must stay LOW during the entire sequence [Ref: P34, T24]
+		while (digitalRead(_DRDY_pin)) {} //wait for DRDY to go LOW (cheap solution)
+		SPI.transfer(0x50 | 1); // 0x50 = WREG //1 = MUX
+		SPI.transfer(0x00);
+		SPI.transfer(DIFF_0_1); //AIN0+AIN1
+
+		SPI.transfer(0b11111100); //SYNC
+		delayMicroseconds(4); //t11 delay 24*tau = 3.125 us //delay should be larger, so we delay by 4 us
+		SPI.transfer(0b11111111); //WAKEUP
+		SPI.transfer(0b00000001); //Issue RDATA (0000 0001) command
+		delayMicroseconds(7); //Wait t6 time (~6.51 us) REF: P34, FIG:30.
+	}
+	else{
+		while (digitalRead(_DRDY_pin)) {}
+	}
+	
+	_outputBuffer[0] = SPI.transfer(0); // MSB 
+	_outputBuffer[1] = SPI.transfer(0); // Mid-byte
+	_outputBuffer[2] = SPI.transfer(0); // LSB
+	
+	_outputValue = ((long)_outputBuffer[0]<<16) | ((long)_outputBuffer[1]<<8) | (_outputBuffer[2]);
+	  
+	return(_outputValue);
 }
 
 long ADS1256::cycleDifferential() 

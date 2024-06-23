@@ -150,6 +150,12 @@ int CS_pin;
 	
 	//Cycling through the single-ended inputs
 	long cycleSingle(); //Ax + COM
+
+	//Get a differential conversion
+	long readDifferential();
+	
+	//Differentail input continuous reading
+	long readDifferentialContinuous();
 	
 	//Cycling through the differential inputs
 	long cycleDifferential(); //Ax + Ay

@@ -104,6 +104,74 @@ filename = f"{today.day:02d}-{today.month:02d}-{today.year}.log"
 #         if self.counter <= 27:
 #             self.root.after(500, self.update_meter)
 
+CONSOLE_CONTROL_IP = '192.168.2.165'
+
+class ClientSocket():
+    def __init__(self):
+        self.client_socket = None
+        self.should_stop = True
+        self.start()
+
+    def connect(self):
+        print("conectando")
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_address = (CONSOLE_CONTROL_IP, 8083) 
+        self.client_socket.connect(server_address)
+        print(f"conectado em: {server_address}")
+
+    def send_message(self):
+        packages = 0
+
+        while packages < 500:
+            send_message = b"<1>"+data_to_trannsmit+b"<END>"
+            self.client_socket.send(send_message)
+            packages+=1
+            time.sleep(0.2)
+    
+    def create_thread(self):
+        self.should_stop = False
+        recieve_thread = threading.Thread(target=self.recieve)
+        recieve_thread.start()
+        return recieve_thread
+
+    def stop_thread(self, thread):
+        self.should_stop = True
+        thread.join()
+    
+    def recieve(self):
+        while not self.should_stop:
+            try:
+                data = self.client_socket.recv(1024)
+                if data:
+                    print(data.decode())
+            except OSError as e:
+                print(f"Erro durante a recepção: {e}")
+                # Lida com erros de conexão, se necessário
+    
+    def start(self):
+        # Cria um socket cliente
+        self.connect()
+        recieve_thread = self.create_thread()
+        while True:
+            try:
+                self.send_message()
+            except:
+                self.stop_thread(recieve_thread)
+
+    def make_payload(self):
+        array_sensor = []
+
+        while len(array_sensor) <= 28:
+            for i in range(self.last_sensor, len(self.sensors)+1):
+                array_sensor.append(i, self.timestamp(), self.sensors[i])
+                if len(array_sensor) >= 28:
+                    break
+
+        return array_sensor
+        
+    def timestamp(self):
+        return int(time.time()*1000)
+
 
 def getObjType(datagram_ID):
     "Get object type and size from Datagram ID range"
@@ -129,6 +197,8 @@ if __name__ == "__main__":
 
         link.open()
         sleep(1)
+        ClientSocket()
+        
         while True:
             size = link.available()
             if size:
@@ -235,71 +305,3 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         link.close()
 
-
-CONSOLE_CONTROL_IP = '192.168.2.165'
-
-class ClientSocket():
-    def __init__(self):
-        self.client_socket = None
-        self.should_stop = True
-        self.start()
-
-    def connect(self):
-        print("conectando")
-        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_address = (CONSOLE_CONTROL_IP, 8083) 
-        self.client_socket.connect(server_address)
-        print(f"conectado em: {server_address}")
-
-    def send_message(self):
-        packages = 0
-
-        while packages < 500:
-            send_message = b"<1>"+data_to_trannsmit+b"<END>"
-            self.client_socket.send(send_message)
-            packages+=1
-            time.sleep(0.2)
-    
-    def create_thread(self):
-        self.should_stop = False
-        recieve_thread = threading.Thread(target=self.recieve)
-        recieve_thread.start()
-        return recieve_thread
-
-    def stop_thread(self, thread):
-        self.should_stop = True
-        thread.join()
-    
-    def recieve(self):
-        while not self.should_stop:
-            try:
-                data = self.client_socket.recv(1024)
-                if data:
-                    print(data.decode())
-            except OSError as e:
-                print(f"Erro durante a recepção: {e}")
-                # Lida com erros de conexão, se necessário
-    
-    def start(self):
-        # Cria um socket cliente
-        self.connect()
-        recieve_thread = self.create_thread()
-        while True:
-            try:
-                self.send_message()
-            except:
-                self.stop_thread(recieve_thread)
-
-    def make_payload(self):
-        array_sensor = []
-
-        while len(array_sensor) <= 28:
-            for i in range(self.last_sensor, len(self.sensors)+1):
-                array_sensor.append(i, self.timestamp(), self.sensors[i])
-                if len(array_sensor) >= 28:
-                    break
-
-        return array_sensor
-        
-    def timestamp(self):
-        return int(time.time()*1000)
