@@ -13,9 +13,9 @@ public:
     void TestManager::init(){
 
     initializeI2C();
-//   initializeADC();
-    // initializeINA();
-//   initializeBMP388(BMP3_NO_OVERSAMPLING, BMP3_NO_OVERSAMPLING, BMP3_IIR_FILTER_DISABLE, BMP3_ODR_200_HZ);
+//  initializeADC();
+//  initializeINA();
+//  initializeBMP388(BMP3_NO_OVERSAMPLING, BMP3_NO_OVERSAMPLING, BMP3_IIR_FILTER_DISABLE, BMP3_ODR_200_HZ);
 }
 
     void initializeI2C(){
